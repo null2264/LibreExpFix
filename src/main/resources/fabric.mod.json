@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "libreexpfix",
+  "version": "${version}",
+  "name": "LibreExpFix",
+  "description": "Fix experience bug after teleporting across dimension",
+  "authors": [
+    "null2264"
+  ],
+  "contact": {},
+  "license": "unlicense",
+  "icon": "assets/libreexpfix/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+    ]
+  },
+  "mixins": [
+    "libreexpfix.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": "*",
+    "fabric": "*",
+    "minecraft": ">=1.18"
+  }
+}
