@@ -20,7 +20,7 @@ val environment = System.getenv()
 
 version = "${project["mod_version"]}-${project["version_type"]}"
 group = project["maven_group"]
-val cfGameVersion = "${project["minecraft_version"]}-Snapshot"
+val cfGameVersion = project["minecraft_version"]
 val releaseFile = "${buildDir}/libs/${base.archivesName.get()}-${version}.jar"
 val releaseType = project["version_type"]
 
