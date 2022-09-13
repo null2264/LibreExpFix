@@ -1,10 +1,15 @@
 plugins {
     id 'fabric-loom' version '1.0-SNAPSHOT'
     id 'maven-publish'
+    id "com.matthewprenger.cursegradle" version "1.4.0"
+    id "com.modrinth.minotaur" version "2.+"
 }
 
-version = project.mod_version
+version = "${project.mod_version}-${project.version_type}"
 group = project.maven_group
+ext.cfGameVersion = "${project.minecraft_version}-Snapshot"
+ext.releaseFile = "${buildDir}/libs/${base.archivesName.get()}-${version}.jar"
+ext.releaseType = project.version_type
 
 repositories {
     // Add repositories to retrieve artifacts from in here.
@@ -65,4 +70,54 @@ publishing {
         // The repositories here will be used for publishing your artifact, not for
         // retrieving dependencies.
     }
+}
+
+curseforge {
+    environment["CURSEFORGE_API_KEY"]?.let { apiKey = it }
+
+    project {
+        id = project.curseforge_id
+        changelog = getChangeLog()
+        releaseType = this.releaseType.toLowerCase()
+        addGameVersion(cfGameVersion)
+        addGameVersion("Fabric")
+
+        mainArtifact(file(releaseFile), {
+            displayName = version
+            relations {
+                requiredDependency("fabric-api")
+            }
+        })
+
+        afterEvaluate {
+            uploadTask.dependsOn("remapJar")
+        }
+
+    }
+
+    options{
+        forgeGradleIntegration = false
+    }
+}
+
+modrinth {
+    dependsOn(tasks.remapJar)
+    group = "upload"
+
+    onlyIf {
+        environment.containsKey("MODRINTH_TOKEN")
+    }
+    token = environment["MODRINTH_TOKEN"]
+
+    projectId = project.modrinth_id
+    changelog = getChangeLog()
+
+    versionNumber = version as String
+    versionName = releaseName
+    versionType = VersionType.valueOf(releaseType)
+
+    uploadFile = file(releaseFile)
+
+    addGameVersion(project.minecraft_version)
+    addLoader("fabric")
 }
