@@ -44,6 +44,8 @@ dependencies {
 }
 
 tasks.processResources {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
     inputs.property("version", project.version)
 
     from(sourceSets["main"].resources.srcDirs) {
