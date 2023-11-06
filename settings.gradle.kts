@@ -18,7 +18,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = "CobbleGen"
+rootProject.name = "LibreExpFix"
 rootProject.buildFileName = "root.gradle.kts"
 
 listOf(
