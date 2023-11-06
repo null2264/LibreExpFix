@@ -28,6 +28,6 @@
   },
   "depends": {
     "fabricloader": "*",
-    "minecraft": ">=1.18"
+    "minecraft": "${mcversion}"
   }
 }

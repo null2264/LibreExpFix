@@ -10,7 +10,6 @@ def _env = System.getenv()
 def buildNumber = _env["GITHUB_RUN_NUMBER"]
 version = project.mod_version + (buildNumber != null ? "b${buildNumber}" : "-") + "BETA"
 group = project.maven_group
-def cfGameVersion = project.minecraft_version
 
 // TODO: For later
 def isForge = project.name.endsWith("forge")
@@ -20,6 +19,13 @@ def isFabric = project.name.endsWith("fabric")
 def mcVersion
 def (major, minor, patch) = project.name.tokenize('-')[0].tokenize('.')
 mcVersion = "${major}${minor.padLeft(2, '0')}${(patch ?: '').padLeft(2, '0')}" as int
+static String stringifyVersion(int ver) {
+    return "${(int)(ver/10000)}.${(int)(ver/100)%100}" + (ver%100==0 ? '' : ".${ver%100}")
+}
+def mcVersionStr = stringifyVersion(mcVersion)
+def supportedVersionRange = [
+        11800: ["1.18", null],
+][mcVersion]
 
 repositories {
 }
@@ -47,7 +53,8 @@ configurations {
 }
 
 dependencies {
-    minecraft("com.mojang:minecraft:1.18.2")
+    def mc = []
+    minecraft("com.mojang:minecraft:${mc[mcVersion] ?: mcVersionStr}")
     mappings loom.officialMojangMappings()
     if (isFabric)
         modImplementation("net.fabricmc:fabric-loader:0.14.24")
@@ -76,11 +83,20 @@ remapJar {
 tasks.processResources {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 
-    inputs.property("version", project.version)
+    def metadataMCVersion =
+            supportedVersionRange[0] != null ? (
+                    (isFabric ? ">=" : "[") +
+                            supportedVersionRange[0] +
+                            (supportedVersionRange[1] == null
+                                    ? (isFabric ? "" : ",)")
+                                    : ((isFabric ? " <=" : ",") + supportedVersionRange[1] + (isFabric ? "" : "]")))
+            ) : (isFabric ? supportedVersionRange[1] : "[${supportedVersionRange[1]}]")
+    inputs.property "version", project.version
+    inputs.property "mcversion", metadataMCVersion
     filteringCharset "UTF-8"
 
     filesMatching(isFabric ? "fabric.mod.json" : "META-INF/mods.toml") {
-        expand "version": project.version
+        expand "version": project.version, "mcversion": metadataMCVersion
     }
 }
 
@@ -102,6 +118,10 @@ tasks.jar {
     }
 }
 
+def mcReleaseVersions = [
+        11800: ["1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3", "1.19.4", "1.20", "1.20.1", "1.20.2"],
+][mcVersion]
+
 publishMods {
     file = remapJar.archiveFile
     displayName = "v${project["mod_version"]}-BETA"
@@ -122,11 +142,9 @@ publishMods {
             accessToken = token
             projectId = project["curseforge_project"]
 
-            /* TODO
             for (final def mcVer in mcReleaseVersions) {
                 minecraftVersions.add(mcVer)
             }
-             */
         }
     }
 
@@ -135,11 +153,9 @@ publishMods {
             accessToken = token
             projectId = project["modrinth_project"]
 
-            /* TODO
             for (final def mcVer in mcReleaseVersions) {
                 minecraftVersions.add(mcVer)
             }
-             */
         }
     }
 }
