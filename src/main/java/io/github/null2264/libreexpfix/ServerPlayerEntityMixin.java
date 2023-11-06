@@ -1,25 +1,25 @@
 package io.github.null2264.libreexpfix;
 
-import net.minecraft.network.packet.s2c.play.EntityStatusEffectS2CPacket;
-import net.minecraft.network.packet.s2c.play.ExperienceBarUpdateS2CPacket;
-import net.minecraft.network.packet.s2c.play.PlayerAbilitiesS2CPacket;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
+import net.minecraft.network.protocol.game.ClientboundSetExperiencePacket;
+import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ServerPlayerEntity.class)
+@Mixin(ServerPlayer.class)
 public abstract class ServerPlayerEntityMixin
 {
     @Shadow
-    public ServerPlayNetworkHandler networkHandler;
+    public ServerGamePacketListenerImpl connection;
 
-    @Inject(method = "worldChanged(Lnet/minecraft/server/world/ServerWorld;)V", at = @At("TAIL"))
-    private void afterWorldChanged(ServerWorld origin, CallbackInfo ci) {
+    @Inject(method = "triggerDimensionChangeTriggers", at = @At("TAIL"))
+    private void afterWorldChanged(ServerLevel origin, CallbackInfo ci) {
         /* Tests:
          *
          * - /effect give @p minecraft:night_vision 99999 1 true
@@ -27,13 +27,13 @@ public abstract class ServerPlayerEntityMixin
          * - /execute in the_nether run tp @s ~ ~ ~
          * - /execute in overworld run tp @s ~ ~ ~
          */
-        ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
-        networkHandler.sendPacket(new ExperienceBarUpdateS2CPacket(
+        ServerPlayer player = (ServerPlayer) (Object) this;
+        connection.send(new ClientboundSetExperiencePacket(
                 player.experienceProgress,
                 player.totalExperience,
                 player.experienceLevel
         ));
-        networkHandler.sendPacket(new PlayerAbilitiesS2CPacket(player.getAbilities()));
-        player.getStatusEffects().forEach(instance -> networkHandler.sendPacket(new EntityStatusEffectS2CPacket(player.getId(), instance)));
+        connection.send(new ClientboundPlayerAbilitiesPacket(player.getAbilities()));
+        player.getActiveEffects().forEach(instance -> connection.send(new ClientboundUpdateMobEffectPacket(player.getId(), instance)));
     }
 }

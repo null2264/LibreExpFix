@@ -1,88 +1,95 @@
-@file:Suppress("UnstableApiUsage")
-
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import net.fabricmc.loom.task.RemapJarTask
-
 plugins {
-    id("dev.architectury.loom") version "1.4-SNAPSHOT"
+    id("dev.architectury.loom") version "1.3-SNAPSHOT"
     id("com.github.johnrengelman.shadow")
     id("com.github.null2264.preprocess")
     id("me.modmuss50.mod-publish-plugin") version "0.3.5"
 }
 
-operator fun Project.get(property: String): String {
-    return property(property) as String
-}
+def _env = System.getenv()
 
-val _env = System.getenv()
-
-val buildNumber = _env["GITHUB_RUN_NUMBER"]
-version = project["mod_version"] + (if (buildNumber != null) "b${buildNumber}" else "-") + "BETA"
-group = project["maven_group"]
-val cfGameVersion = project["minecraft_version"]
+def buildNumber = _env["GITHUB_RUN_NUMBER"]
+version = project.mod_version + (buildNumber != null ? "b${buildNumber}" : "-") + "BETA"
+group = project.maven_group
+def cfGameVersion = project.minecraft_version
 
 // TODO: For later
-val isForge = project.name.endsWith("forge")
-val isNeo = project.name.endsWith("neoforge")
-val isFabric = project.name.endsWith("fabric")
+def isForge = project.name.endsWith("forge")
+def isNeo = project.name.endsWith("neoforge")
+def isFabric = project.name.endsWith("fabric")
+
+def mcVersion
+def (major, minor, patch) = project.name.tokenize('-')[0].tokenize('.')
+mcVersion = "${major}${minor.padLeft(2, '0')}${(patch ?: '').padLeft(2, '0')}" as int
 
 repositories {
 }
 
+preprocess {
+    vars.put("MC", mcVersion)
+    vars.put("FABRIC", isFabric ? 1 : 0)
+    vars.put("FORGE", isForge ? 1 + (isNeo ? 1 : 0) : 0)
+}
+
 loom {
+    silentMojangMappingsLicense()
+
     mixin.defaultRefmapName.set("mixins.libreexpfix.refmap.json")
 
     if (isForge)
         forge {
-            mixinConfigs = listOf("libreexpfix.mixins.json")
+            mixinConfigs = ["libreexpfix.mixins.json"]
         }
 }
 
+configurations {
+    shade
+    modImplementation.extendsFrom(shade)
+}
+
 dependencies {
-    minecraft("com.mojang:minecraft:${project["minecraft_version"]}")
-    mappings("net.fabricmc:yarn:${project["yarn_mappings"]}:v2")
+    minecraft("com.mojang:minecraft:1.18.2")
+    mappings loom.officialMojangMappings()
     if (isFabric)
-        modImplementation("net.fabricmc:fabric-loader:${project["loader_version"]}")
+        modImplementation("net.fabricmc:fabric-loader:0.14.24")
     else
         forge("net.minecraftforge:forge:1.18.2-40.2.9")
 }
 
-val shadowJar = tasks.named<ShadowJar>("shadowJar") {
-    isZip64 = true
+shadowJar {
+    zip64 true
     exclude("fabric.mod.json")
-    exclude(if (isFabric) "META-INF/mods.toml" else "fabric.mod.json")
+    exclude(isFabric ? "META-INF/mods.toml" : "fabric.mod.json")
     exclude("architectury.common.json")
 
     archiveClassifier.set("dev-shade")
 }
 
 artifacts {
-    archives(shadowJar.get())
+    archives(shadowJar)
 }
 
-val remapJar = tasks.named<RemapJarTask>("remapJar") {
-    dependsOn(shadowJar.get())
-    inputFile.set(shadowJar.get().archiveFile)
+remapJar {
+    dependsOn(shadowJar)
+    inputFile.set(shadowJar.archiveFile)
 }
 
 tasks.processResources {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 
     inputs.property("version", project.version)
+    filteringCharset "UTF-8"
 
-    from(sourceSets["main"].resources.srcDirs) {
-        include("fabric.mod.json")
-        expand(mutableMapOf("version" to project.version))
-    }
-
-    from(sourceSets["main"].resources.srcDirs) {
-        exclude("fabric.mod.json")
+    filesMatching(isFabric ? "fabric.mod.json" : "META-INF/mods.toml") {
+        expand "version": project.version
     }
 }
 
-tasks.withType<JavaCompile> {
-    options.encoding = "UTF-8"
-    options.release.set(17)
+def targetJavaVersion = 17
+tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = "UTF-8"
+    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+        it.options.release = targetJavaVersion
+    }
 }
 
 java {
@@ -96,7 +103,7 @@ tasks.jar {
 }
 
 publishMods {
-    file = remapJar.get().archiveFile
+    file = remapJar.archiveFile
     displayName = "v${project["mod_version"]}-BETA"
     changelog = _env["CHANGELOG"] ?: "The changelog can be found at https://github.com/null2264/LibreExpFix/commits/"
     version = project.version as String

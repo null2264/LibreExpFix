@@ -28,6 +28,6 @@ listOf(
     include(":$version")
     project(":$version").apply {
         projectDir = file("versions/$version")
-        buildFileName = "../../build.gradle.kts"
+        buildFileName = "../../build.gradle"
     }
 }
