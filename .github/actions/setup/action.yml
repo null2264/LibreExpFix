@@ -10,4 +10,5 @@ runs:
       with:
         distribution: "temurin"
         java-version: 17
-    - run: chmod +x ./gradlew
+    - shell: bash
+      run: chmod +x ./gradlew
