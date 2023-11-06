@@ -53,7 +53,9 @@ configurations {
 }
 
 dependencies {
-    def mc = []
+    def mc = [
+            11800: "1.18.2"
+    ]
     minecraft("com.mojang:minecraft:${mc[mcVersion] ?: mcVersionStr}")
     mappings loom.officialMojangMappings()
     if (isFabric)
