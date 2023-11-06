@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import net.fabricmc.loom.task.RemapJarTask
 
@@ -24,6 +26,14 @@ val isNeo = project.name.endsWith("neoforge")
 val isFabric = project.name.endsWith("fabric")
 
 repositories {
+}
+
+loom {
+    mixin.defaultRefmapName.set("mixins.libreexpfix.refmap.json")
+    if (isForge)
+        forge {
+            mixinConfigs = listOf("libreexpfix.mixins.json")
+        }
 }
 
 dependencies {
