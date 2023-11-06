@@ -13,7 +13,8 @@ operator fun Project.get(property: String): String {
 
 val _env = System.getenv()
 
-version = project["mod_version"]
+val buildNumber = _env["GITHUB_RUN_NUMBER"]
+version = project["mod_version"] + (if (buildNumber != null) "b${buildNumber}" else "-") + "BETA"
 group = project["maven_group"]
 val cfGameVersion = project["minecraft_version"]
 
@@ -81,7 +82,7 @@ tasks.jar {
 
 publishMods {
     file = remapJar.get().archiveFile
-    displayName = "v${project.version}-BETA"
+    displayName = "v${project["mod_version"]}-BETA"
     changelog = _env["CHANGELOG"] ?: "The changelog can be found at https://github.com/null2264/LibreExpFix/commits/"
     version = project.version as String
     if (isFabric) {
