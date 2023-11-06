@@ -7,17 +7,25 @@
   "authors": [
     "null2264"
   ],
-  "contact": {},
-  "license": "unlicense",
-  "icon": "assets/libreexpfix/icon.png",
-  "environment": "*",
-  "entrypoints": {
-    "main": [
-    ]
+  "contact": {
+    "homepage": "https://github.com/null2264/LibreExpFix",
+    "sources": "https://github.com/null2264/LibreExpFix",
+    "issues": "https://github.com/null2264/LibreExpFix/issues"
   },
+  "license": "unlicense",
+  "icon": "icon.png",
+  "environment": "*",
+  "entrypoints": {},
   "mixins": [
     "libreexpfix.mixins.json"
   ],
+  "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.discord": "https://discord.gg/sP9xRy6"
+      }
+    }
+  },
   "depends": {
     "fabricloader": "*",
     "minecraft": ">=1.18"

@@ -6,6 +6,7 @@ import net.fabricmc.loom.task.RemapJarTask
 plugins {
     id("dev.architectury.loom") version "1.4-SNAPSHOT"
     id("com.github.johnrengelman.shadow")
+    id("com.github.null2264.preprocess")
     id("me.modmuss50.mod-publish-plugin") version "0.3.5"
 }
 
@@ -30,6 +31,7 @@ repositories {
 
 loom {
     mixin.defaultRefmapName.set("mixins.libreexpfix.refmap.json")
+
     if (isForge)
         forge {
             mixinConfigs = listOf("libreexpfix.mixins.json")
@@ -39,13 +41,16 @@ loom {
 dependencies {
     minecraft("com.mojang:minecraft:${project["minecraft_version"]}")
     mappings("net.fabricmc:yarn:${project["yarn_mappings"]}:v2")
-    modImplementation("net.fabricmc:fabric-loader:${project["loader_version"]}")
+    if (isFabric)
+        modImplementation("net.fabricmc:fabric-loader:${project["loader_version"]}")
+    else
+        forge("net.minecraftforge:forge:1.18.2-40.2.9")
 }
 
 val shadowJar = tasks.named<ShadowJar>("shadowJar") {
     isZip64 = true
     exclude("fabric.mod.json")
-    //exclude(if (isFabric) "META-INF/mods.toml" else "fabric.mod.json")
+    exclude(if (isFabric) "META-INF/mods.toml" else "fabric.mod.json")
     exclude("architectury.common.json")
 
     archiveClassifier.set("dev-shade")
