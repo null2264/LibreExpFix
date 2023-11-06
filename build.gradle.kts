@@ -1,46 +1,52 @@
-import com.matthewprenger.cursegradle.CurseProject
-import com.matthewprenger.cursegradle.CurseArtifact
-import com.matthewprenger.cursegradle.CurseRelation
-import com.matthewprenger.cursegradle.Options
-import com.modrinth.minotaur.TaskModrinthUpload
-import com.modrinth.minotaur.request.VersionType
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import net.fabricmc.loom.task.RemapJarTask
 
 plugins {
-    id("fabric-loom") version "1.0-SNAPSHOT"
-    id("maven-publish")
-    id("com.matthewprenger.cursegradle") version "1.4.0"
-    id("com.modrinth.minotaur") version "1.2.1"
+    id("dev.architectury.loom") version "1.4-SNAPSHOT"
+    id("com.github.johnrengelman.shadow")
+    id("me.modmuss50.mod-publish-plugin") version "0.3.5"
 }
 
 operator fun Project.get(property: String): String {
     return property(property) as String
 }
 
-val environment = System.getenv()
+val _env = System.getenv()
 
-version = "${project["mod_version"]}-${project["version_type"]}"
+version = project["mod_version"]
 group = project["maven_group"]
 val cfGameVersion = project["minecraft_version"]
-val releaseFile = "${buildDir}/libs/${base.archivesName.get()}-${version}.jar"
-val releaseType = project["version_type"]
 
-fun getChangeLog(): String {
-    return "The changelog can be found at https://github.com/null2264/LibreExpFix/commits/"
-}
+// TODO: For later
+val isForge = project.name.endsWith("forge")
+val isNeo = project.name.endsWith("neoforge")
+val isFabric = project.name.endsWith("fabric")
 
 repositories {
-    // Add repositories to retrieve artifacts from in here.
-    // You should only use this when depending on other mods because
-    // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-    // See https://docs.gradle.org/current/userguide/declaring_repositories.html
-    // for more information about repositories.
 }
 
 dependencies {
-    // To change the versions see the gradle.properties file
     minecraft("com.mojang:minecraft:${project["minecraft_version"]}")
     mappings("net.fabricmc:yarn:${project["yarn_mappings"]}:v2")
     modImplementation("net.fabricmc:fabric-loader:${project["loader_version"]}")
+}
+
+val shadowJar = tasks.named<ShadowJar>("shadowJar") {
+    isZip64 = true
+    exclude("fabric.mod.json")
+    //exclude(if (isFabric) "META-INF/mods.toml" else "fabric.mod.json")
+    exclude("architectury.common.json")
+
+    archiveClassifier.set("dev-shade")
+}
+
+artifacts {
+    archives(shadowJar.get())
+}
+
+val remapJar = tasks.named<RemapJarTask>("remapJar") {
+    dependsOn(shadowJar.get())
+    inputFile.set(shadowJar.get().archiveFile)
 }
 
 tasks.processResources {
@@ -73,47 +79,44 @@ tasks.jar {
     }
 }
 
-curseforge {
-    environment["CURSEFORGE_API_KEY"]?.let { apiKey = it }
-    project(closureOf<CurseProject> {
-        id = project["curseforge_id"]
-        changelog = getChangeLog()
-        releaseType = this@Build_gradle.releaseType.toLowerCase()
-        addGameVersion(cfGameVersion)
-        addGameVersion("Fabric")
-        mainArtifact(file(releaseFile), closureOf<CurseArtifact> {
-            displayName = version
-            relations(closureOf<CurseRelation> {
-                requiredDependency("fabric-api")
-            })
-        })
-        afterEvaluate {
-            uploadTask.dependsOn("remapJar")
-        }
-    })
-    options(closureOf<Options> {
-        forgeGradleIntegration = false
-    })
-}
-
-task<TaskModrinthUpload>("modrinth") {
-    dependsOn(tasks.remapJar)
-    group = "upload"
-
-    onlyIf {
-        environment.containsKey("MODRINTH_TOKEN")
+publishMods {
+    file = remapJar.get().archiveFile
+    displayName = "v${project.version}-BETA"
+    changelog = _env["CHANGELOG"] ?: "The changelog can be found at https://github.com/null2264/LibreExpFix/commits/"
+    version = project.version as String
+    if (isFabric) {
+        modLoaders.add("fabric")
+        modLoaders.add("quilt")
+    } else {
+        modLoaders.add("forge")
+        modLoaders.add("neoforge")
     }
-    token = environment["MODRINTH_TOKEN"]
 
-    projectId = project["modrinth_id"]
-    changelog = getChangeLog()
+    type = BETA
 
-    versionNumber = version as String
-    versionName = version as String
-    versionType = VersionType.valueOf(releaseType)
+    _env["CURSEFORGE"]?.also { token ->
+        curseforge {
+            accessToken = token
+            projectId = project["curseforge_project"]
 
-    uploadFile = file(releaseFile)
+            /* TODO
+            for (final def mcVer in mcReleaseVersions) {
+                minecraftVersions.add(mcVer)
+            }
+             */
+        }
+    }
 
-    addGameVersion(project["minecraft_version"])
-    addLoader("fabric")
+    _env["MODRINTH"]?.also { token ->
+        modrinth {
+            accessToken = token
+            projectId = project["modrinth_project"]
+
+            /* TODO
+            for (final def mcVer in mcReleaseVersions) {
+                minecraftVersions.add(mcVer)
+            }
+             */
+        }
+    }
 }

@@ -8,8 +8,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2.2.0
     - uses: ./.github/actions/setup
-    - name: "Build and Deploy"
-      run: ./gradlew build curseforge modrinth --stacktrace
+    - name: "Build"
+      run: ./gradlew build --stacktrace
+    - name: "Upload mod to CurseForge and Modrinth"
+      run: ./gradlew publishMods --stacktrace
       env:
         CURSEFORGE_API_KEY: ${{ secrets.CURSEFORGE_API_KEY }}
         MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
