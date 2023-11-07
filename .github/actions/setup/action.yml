@@ -1,0 +1,14 @@
+name: "Setup environment"
+description: "Set up Java environment"
+runs:
+  using: "composite"
+  steps:
+    - name: "Validate gradle"
+      uses: gradle/wrapper-validation-action@v1
+    - name: "Setup JDK"
+      uses: actions/setup-java@v3
+      with:
+        distribution: "temurin"
+        java-version: 17
+    - shell: bash
+      run: chmod +x ./gradlew

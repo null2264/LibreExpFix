@@ -1,0 +1,27 @@
+modLoader = "javafml"
+loaderVersion = "[38,)"
+license = "unlicense"
+issueTrackerURL = "https://github.com/null2264/LibreExpFix/issues"
+
+[[mods]]
+modId = "libreexpfix"
+version = "${version}"
+displayName = "LibreExpFix"
+displayURL = "https://github.com/null2264/LibreExpFix"
+logoFile = "icon.png"
+authors = "null2264"
+description = "Fix experience bug after teleporting across dimension"
+
+[[dependencies.libreexpfix]]
+modId = "forge"
+mandatory = true
+versionRange = "[38,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.libreexpfix]]
+modId = "minecraft"
+mandatory = true
+versionRange = "${mcversion}"
+ordering = "NONE"
+side = "BOTH"

@@ -4,19 +4,18 @@ on: [push]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
-    container:
-      image: openjdk:17-jdk
-      options: --user root
-
     steps:
-    - uses: actions/checkout@v2.2.0
-    - run: |
-          chmod +x ./gradlew
-          ./gradlew build
-    - uses: actions/upload-artifact@v2
+    - uses: actions/checkout@v3
+    - uses: ./.github/actions/setup
+    - name: "Build LibreExpFix"
+      run: ./gradlew build
+    - name: Archive build results
+      run: tar -I zstd -cf build.tar.zst versions/*/build/libs
+    - name: Upload build folder
+      uses: actions/upload-artifact@v3
       with:
         name: build-artifacts
-        path: build/libs/
+        path: build.tar.zst
+        if-no-files-found: error
+        retention-days: 3

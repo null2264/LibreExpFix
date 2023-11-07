@@ -1,0 +1,176 @@
+plugins {
+    id("dev.architectury.loom") version "1.3-SNAPSHOT"
+    id("com.github.johnrengelman.shadow")
+    id("com.github.null2264.preprocess")
+    id("me.modmuss50.mod-publish-plugin") version "0.3.5"
+}
+
+def _env = System.getenv()
+
+archivesBaseName = project.archives_base_name
+
+def buildNumber = _env["GITHUB_RUN_NUMBER"]
+version = project.mod_version + (buildNumber != null ? "b${buildNumber}" : "") + "-BETA"
+group = project.maven_group
+
+// TODO: For later
+def isForge = project.name.endsWith("forge")
+def isNeo = project.name.endsWith("neoforge")
+def isFabric = project.name.endsWith("fabric")
+
+def mcVersion
+def (major, minor, patch) = project.name.tokenize('-')[0].tokenize('.')
+mcVersion = "${major}${minor.padLeft(2, '0')}${(patch ?: '').padLeft(2, '0')}" as int
+static String stringifyVersion(int ver) {
+    return "${(int)(ver/10000)}.${(int)(ver/100)%100}" + (ver%100==0 ? '' : ".${ver%100}")
+}
+def mcVersionStr = stringifyVersion(mcVersion)
+def supportedVersionRange = [
+        11800: ["1.18", null],
+][mcVersion]
+
+repositories {
+}
+
+preprocess {
+    vars.put("MC", mcVersion)
+    vars.put("FABRIC", isFabric ? 1 : 0)
+    vars.put("FORGE", isForge ? 1 + (isNeo ? 1 : 0) : 0)
+}
+
+loom {
+    silentMojangMappingsLicense()
+
+    mixin.defaultRefmapName.set("mixins.libreexpfix.refmap.json")
+
+    runConfigs.configure {
+        client {
+            runDir = "../../run/client"
+            ideConfigGenerated = true
+        }
+        server {
+            runDir = "../../run/server"
+            ideConfigGenerated = true
+        }
+    }
+
+    if (isForge)
+        forge {
+            mixinConfigs = ["libreexpfix.mixins.json"]
+        }
+}
+
+configurations {
+    shade
+    modImplementation.extendsFrom(shade)
+}
+
+dependencies {
+    def mc = [
+            11800: "1.18.2"
+    ]
+    minecraft("com.mojang:minecraft:${mc[mcVersion] ?: mcVersionStr}")
+    mappings loom.officialMojangMappings()
+    if (isFabric)
+        modImplementation("net.fabricmc:fabric-loader:0.14.24")
+    else
+        forge("net.minecraftforge:forge:1.18.2-40.2.9")
+}
+
+shadowJar {
+    zip64 true
+    exclude("fabric.mod.json")
+    exclude(isFabric ? "META-INF/mods.toml" : "fabric.mod.json")
+    exclude("architectury.common.json")
+
+    archiveClassifier.set("dev-shade")
+}
+
+artifacts {
+    archives(shadowJar)
+}
+
+remapJar {
+    dependsOn(shadowJar)
+    inputFile.set(shadowJar.archiveFile)
+}
+
+tasks.processResources {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
+    def metadataMCVersion =
+            supportedVersionRange[0] != null ? (
+                    (isFabric ? ">=" : "[") +
+                            supportedVersionRange[0] +
+                            (supportedVersionRange[1] == null
+                                    ? (isFabric ? "" : ",)")
+                                    : ((isFabric ? " <=" : ",") + supportedVersionRange[1] + (isFabric ? "" : "]")))
+            ) : (isFabric ? supportedVersionRange[1] : "[${supportedVersionRange[1]}]")
+    inputs.property "version", project.version
+    inputs.property "mcversion", metadataMCVersion
+    filteringCharset "UTF-8"
+
+    filesMatching(isFabric ? "fabric.mod.json" : "META-INF/mods.toml") {
+        expand "version": project.version, "mcversion": metadataMCVersion
+    }
+}
+
+def targetJavaVersion = 17
+tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = "UTF-8"
+    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+        it.options.release = targetJavaVersion
+    }
+}
+
+java {
+    withSourcesJar()
+}
+
+jar {
+    from("LICENSE") {
+        rename { "${it}_${project["archivesBaseName"]}" }
+    }
+}
+
+def mcReleaseVersions = [
+        11800: ["1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3", "1.19.4", "1.20", "1.20.1", "1.20.2"],
+][mcVersion]
+
+publishMods {
+    file = remapJar.archiveFile
+    displayName = "[${isFabric ? "FABRIC" : "FORGE"} MC${mcReleaseVersions[0] + (mcReleaseVersions.size() > 1 ? "+" : "")}] v${project.mod_version}-BETA"
+    changelog = _env["CHANGELOG"] ?: "The changelog can be found at https://github.com/null2264/LibreExpFix/commits/"
+    version = project.version as String
+    if (isFabric) {
+        modLoaders.add("fabric")
+        modLoaders.add("quilt")
+    } else {
+        modLoaders.add("forge")
+        modLoaders.add("neoforge")
+    }
+
+    type = BETA
+
+    _env["CURSEFORGE"]?.also { token ->
+        curseforge {
+            accessToken = token
+            projectId = project["curseforge_project"]
+
+            for (final def mcVer in mcReleaseVersions) {
+                minecraftVersions.add(mcVer)
+            }
+        }
+    }
+
+    _env["MODRINTH"]?.also { token ->
+        modrinth {
+            accessToken = token
+            projectId = project["modrinth_project"]
+
+            for (final def mcVer in mcReleaseVersions) {
+                minecraftVersions.add(mcVer)
+            }
+        }
+    }
+}
