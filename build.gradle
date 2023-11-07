@@ -9,14 +9,13 @@ def _env = System.getenv()
 
 archivesBaseName = project.archives_base_name
 
-def buildNumber = _env["GITHUB_RUN_NUMBER"]
-version = project.mod_version + (buildNumber != null ? "b${buildNumber}" : "") + "-BETA"
-group = project.maven_group
-
-// TODO: For later
 def isForge = project.name.endsWith("forge")
 def isNeo = project.name.endsWith("neoforge")
 def isFabric = project.name.endsWith("fabric")
+
+def buildNumber = _env["GITHUB_RUN_NUMBER"]
+version = project.mod_version + (buildNumber != null ? "b${buildNumber}" : "") + "-BETA" + (isFabric ? "-fabric" : "-forge")
+group = project.maven_group
 
 def mcVersion
 def (major, minor, patch) = project.name.tokenize('-')[0].tokenize('.')
@@ -98,6 +97,7 @@ remapJar {
 tasks.processResources {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 
+    def metadataVersion = project.mod_version + (buildNumber != null ? "b${buildNumber}" : "") + "-BETA"
     def metadataMCVersion =
             supportedVersionRange[0] != null ? (
                     (isFabric ? ">=" : "[") +
@@ -106,12 +106,12 @@ tasks.processResources {
                                     ? (isFabric ? "" : ",)")
                                     : ((isFabric ? " <=" : ",") + supportedVersionRange[1] + (isFabric ? "" : "]")))
             ) : (isFabric ? supportedVersionRange[1] : "[${supportedVersionRange[1]}]")
-    inputs.property "version", project.version
+    inputs.property "version", metadataVersion
     inputs.property "mcversion", metadataMCVersion
     filteringCharset "UTF-8"
 
     filesMatching(isFabric ? "fabric.mod.json" : "META-INF/mods.toml") {
-        expand "version": project.version, "mcversion": metadataMCVersion
+        expand "version": metadataVersion, "mcversion": metadataMCVersion
     }
 }
 
