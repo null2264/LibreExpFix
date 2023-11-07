@@ -1,4 +1,4 @@
-package io.github.null2264.libreexpfix;
+package io.github.null2264.libreexpfix.mixin;
 
 import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetExperiencePacket;
