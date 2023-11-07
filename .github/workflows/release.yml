@@ -24,16 +24,16 @@ jobs:
     needs: release
     runs-on: ubuntu-latest
     steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: build-artifacts
-      - name: Unpack build artifact
-        run: tar axf build.tar.zst
-      - name: Upload Release Artifact
-        uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          files: |
-            versions/*/build/libs/!(*-dev-shade|*-sources).jar
+    - name: Download build artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: build-artifacts
+    - name: Unpack build artifact
+      run: tar axf build.tar.zst
+    - name: Upload Release Artifact
+      uses: softprops/action-gh-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        files: |
+          versions/*/build/libs/!(*-dev-shade|*-sources).jar
