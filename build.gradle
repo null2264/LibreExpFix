@@ -7,8 +7,10 @@ plugins {
 
 def _env = System.getenv()
 
+archivesBaseName = project.archives_base_name
+
 def buildNumber = _env["GITHUB_RUN_NUMBER"]
-version = project.mod_version + (buildNumber != null ? "b${buildNumber}" : "-") + "BETA"
+version = project.mod_version + (buildNumber != null ? "b${buildNumber}" : "") + "-BETA"
 group = project.maven_group
 
 // TODO: For later
@@ -125,7 +127,7 @@ java {
     withSourcesJar()
 }
 
-tasks.jar {
+jar {
     from("LICENSE") {
         rename { "${it}_${project["archivesBaseName"]}" }
     }
@@ -137,7 +139,7 @@ def mcReleaseVersions = [
 
 publishMods {
     file = remapJar.archiveFile
-    displayName = "v${project["mod_version"]}-BETA"
+    displayName = "[${isFabric ? "FABRIC" : "FORGE"} MC${mcReleaseVersions[0] + (mcReleaseVersions.size() > 1 ? "+" : "")}] v${project.mod_version}-BETA"
     changelog = _env["CHANGELOG"] ?: "The changelog can be found at https://github.com/null2264/LibreExpFix/commits/"
     version = project.version as String
     if (isFabric) {
