@@ -153,7 +153,7 @@ publishMods {
     type = BETA
 
     def cToken = _env["CURSEFORGE"]
-    if (cToken)
+    if (cToken != null)
         curseforge {
             accessToken = cToken
             projectId = project["curseforge_project"]
@@ -164,7 +164,7 @@ publishMods {
         }
 
     def mToken = _env["MODRINTH"]
-    if (mToken)
+    if (mToken != null)
         modrinth {
             accessToken = mToken
             projectId = project["modrinth_project"]
