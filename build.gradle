@@ -152,25 +152,25 @@ publishMods {
 
     type = BETA
 
-    _env["CURSEFORGE"]?.also { token ->
+    def cToken = _env["CURSEFORGE"]
+    if (cToken)
         curseforge {
-            accessToken = token
+            accessToken = cToken
             projectId = project["curseforge_project"]
 
             for (final def mcVer in mcReleaseVersions) {
                 minecraftVersions.add(mcVer)
             }
         }
-    }
 
-    _env["MODRINTH"]?.also { token ->
+    def mToken = _env["MODRINTH"]
+    if (mToken)
         modrinth {
-            accessToken = token
+            accessToken = mToken
             projectId = project["modrinth_project"]
 
             for (final def mcVer in mcReleaseVersions) {
                 minecraftVersions.add(mcVer)
             }
         }
-    }
 }
