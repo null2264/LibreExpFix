@@ -1,6 +1,9 @@
 name: Release
 
-on: [workflow_dispatch]
+name: release
+on:
+  release:
+    types: [ published ]
 
 jobs:
   release:
@@ -15,3 +18,22 @@ jobs:
       env:
         CURSEFORGE: ${{ secrets.CURSEFORGE_API_KEY }}
         MODRINTH: ${{ secrets.MODRINTH_TOKEN }}
+
+  upload-release-artifacts:
+    name: Upload Release Artifacts
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts
+      - name: Unpack build artifact
+        run: tar axf build.tar.zst
+      - name: Upload Release Artifact
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: |
+            versions/*/build/libs/!(*-dev-shade|*-sources).jar
