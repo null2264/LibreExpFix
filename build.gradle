@@ -41,6 +41,17 @@ loom {
 
     mixin.defaultRefmapName.set("mixins.libreexpfix.refmap.json")
 
+    runConfigs.configure {
+        client {
+            runDir = "../../run/client"
+            ideConfigGenerated = true
+        }
+        server {
+            runDir = "../../run/server"
+            ideConfigGenerated = true
+        }
+    }
+
     if (isForge)
         forge {
             mixinConfigs = ["libreexpfix.mixins.json"]
