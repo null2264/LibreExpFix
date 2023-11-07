@@ -13,5 +13,5 @@ jobs:
     - name: "Upload mod to CurseForge and Modrinth"
       run: ./gradlew publishMods --stacktrace
       env:
-        CURSEFORGE_API_KEY: ${{ secrets.CURSEFORGE_API_KEY }}
-        MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+        CURSEFORGE: ${{ secrets.CURSEFORGE_API_KEY }}
+        MODRINTH: ${{ secrets.MODRINTH_TOKEN }}
