@@ -78,7 +78,6 @@ dependencies {
 
 shadowJar {
     zip64 true
-    exclude("fabric.mod.json")
     exclude(isFabric ? "META-INF/mods.toml" : "fabric.mod.json")
     exclude("architectury.common.json")
 
