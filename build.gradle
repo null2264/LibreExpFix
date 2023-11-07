@@ -81,6 +81,7 @@ shadowJar {
     exclude(isFabric ? "META-INF/mods.toml" : "fabric.mod.json")
     exclude("architectury.common.json")
 
+    configurations = [project.configurations.shade]
     archiveClassifier.set("dev-shade")
 }
 
