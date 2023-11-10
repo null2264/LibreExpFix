@@ -9,10 +9,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: ./.github/actions/setup
-    - name: "Build"
+    - name: Setup build environment
+      uses: ./.github/actions/setup
+    - name: Build
       run: ./gradlew build --stacktrace
-    - name: "Upload mod to CurseForge and Modrinth"
+    - name: Archive build results
+      run: tar -I zstd -cf build.tar.zst versions/*/build/libs
+    - name: Upload build folder
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-artifacts
+        path: build.tar.zst
+        if-no-files-found: error
+        retention-days: 3
+    - name: Upload mod to CurseForge and Modrinth
       run: ./gradlew publishMods --stacktrace
       env:
         CHANGELOG: ${{ github.event.release.body }}

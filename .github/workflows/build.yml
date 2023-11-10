@@ -7,8 +7,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: ./.github/actions/setup
-    - name: "Build LibreExpFix"
+    - name: Setup build environment
+      uses: ./.github/actions/setup
+    - name: Build LibreExpFix
       run: ./gradlew build
     - name: Archive build results
       run: tar -I zstd -cf build.tar.zst versions/*/build/libs
