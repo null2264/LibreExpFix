@@ -13,10 +13,10 @@ jobs:
       run: ./gradlew build
     - name: Move needed jar files
       shell: zsh {0}
-      run: mkdir jars && cp versions/*/build/libs/*-(fabric|forge|neoforge).jar jars/
+      run: mkdir filtered && cp --parents versions/*/build/libs/*-(fabric|forge|neoforge).jar filtered/
     - name: Upload build folder
       uses: actions/upload-artifact@v3
       with:
-        path: jars/*.jar
+        path: filtered/versions/*/build/libs/*.jar
         if-no-files-found: error
         retention-days: 3
