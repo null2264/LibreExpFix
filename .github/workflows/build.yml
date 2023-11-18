@@ -12,7 +12,7 @@ jobs:
     - name: Build LibreExpFix
       run: ./gradlew build
     - name: Move needed jar files
-      shell: zsh
+      shell: bash
       run: mkdir jars && cp versions/*/build/libs/*-(fabric|forge|neoforge).jar jars/
     - name: Upload build folder
       uses: actions/upload-artifact@v3
