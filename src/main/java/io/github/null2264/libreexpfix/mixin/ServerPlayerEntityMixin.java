@@ -23,9 +23,8 @@ public abstract class ServerPlayerEntityMixin
         /* Tests:
          *
          * - /effect give @p minecraft:night_vision 99999 1 true
-         * - /tp ~ 325 ~
-         * - /execute in the_nether run tp @s ~ ~ ~
-         * - /execute in overworld run tp @s ~ ~ ~
+         * - /execute in the_nether run tp @s ~ 10 ~
+         * - /execute in overworld run tp @s ~ 10 ~
          */
         ServerPlayer player = (ServerPlayer) (Object) this;
         connection.send(new ClientboundSetExperiencePacket(
