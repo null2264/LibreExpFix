@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[38,)"
+loaderVersion = "[1,)"
 license = "unlicense"
 issueTrackerURL = "https://github.com/null2264/LibreExpFix/issues"
 
@@ -12,10 +12,13 @@ logoFile = "icon.png"
 authors = "null2264"
 description = "Fix experience bug after teleporting across dimension"
 
+[[mixins]]
+config = "libreexpfix.mixins.json"
+
 [[dependencies.libreexpfix]]
-modId = "forge"
+modId = "${forge}"
 mandatory = true
-versionRange = "[38,)"
+versionRange = "[1,)"
 ordering = "NONE"
 side = "BOTH"
 
