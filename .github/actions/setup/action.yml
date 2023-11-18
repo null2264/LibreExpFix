@@ -1,14 +1,18 @@
-name: "Setup environment"
-description: "Set up Java environment"
+name: Setup environment
+description: Set up Java environment
 runs:
-  using: "composite"
+  using: composite
   steps:
-    - name: "Validate gradle"
+    - name: Validate Gradle
       uses: gradle/wrapper-validation-action@v1
-    - name: "Setup JDK"
+    - name: Setup JDK
       uses: actions/setup-java@v3
       with:
         distribution: "temurin"
         java-version: 17
-    - shell: bash
+    - name: Making sure gradlew is executable
+      shell: bash
       run: chmod +x ./gradlew
+    - name: Install zsh
+      shell: bash
+      run: sudo apt-get update; sudo apt-get install zsh
