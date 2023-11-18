@@ -11,9 +11,11 @@ jobs:
       uses: ./.github/actions/setup
     - name: Build LibreExpFix
       run: ./gradlew build
+    - name: Move needed jar files
+      run: mkdir jars && cp versions/*/build/libs/*-(fabric|forge|neoforge).jar jars/
     - name: Upload build folder
       uses: actions/upload-artifact@v3
       with:
-        path: versions/*/build/libs/!(*-dev-shade|*-sources).jar
+        path: jars/*.jar
         if-no-files-found: error
         retention-days: 3
