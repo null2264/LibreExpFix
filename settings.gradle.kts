@@ -2,7 +2,7 @@ pluginManagement {
     repositories {
         gradlePluginPortal()
         maven("https://maven.fabricmc.net/")
-        maven("https://maven.aap.my.id/releases/")
+        maven("https://maven.aap.my.id/")
         maven("https://maven.architectury.dev/")
         maven("https://jitpack.io/")
         maven("https://files.minecraftforge.net/maven/")
