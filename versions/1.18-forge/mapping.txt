@@ -1,1 +1,1 @@
-net.minecraft.server.network.ServerGamePacketListenerImpl m_9829_() m_141995_()
+net.minecraft.server.network.ServerGamePacketListenerImpl m_9829_() send()
