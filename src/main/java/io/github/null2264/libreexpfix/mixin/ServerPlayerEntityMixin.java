@@ -1,6 +1,5 @@
 package io.github.null2264.libreexpfix.mixin;
 
-import net.minecraft.DetectedVersion;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetExperiencePacket;
@@ -23,7 +22,7 @@ public abstract class ServerPlayerEntityMixin
         connection.send(packet);
         //#else
         // Workaround for Forge
-        net.minecraft.DetectedVersion curVer = (DetectedVersion) DetectedVersion.BUILT_IN;
+        net.minecraft.DetectedVersion curVer = (net.minecraft.DetectedVersion) net.minecraft.DetectedVersion.BUILT_IN;
         String majorVersion = curVer.getName().split("\\.")[1];
         String func;
         if (majorVersion.equals("18"))
