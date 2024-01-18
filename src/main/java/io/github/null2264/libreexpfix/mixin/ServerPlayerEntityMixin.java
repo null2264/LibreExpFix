@@ -18,7 +18,7 @@ public abstract class ServerPlayerEntityMixin
 {
     @Unique
     private void sendPacket(ServerGamePacketListenerImpl connection, Packet<?> packet) {
-        //#if FABRIC>=1
+        //#if FABRIC>=1 || MC>=12002
         connection.send(packet);
         //#else
         // Workaround for Forge
