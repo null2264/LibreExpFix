@@ -14,10 +14,8 @@ preprocess {
     // In case CHASM released
     //val quilt11800 = createNode("1.18-quilt", 11800, "yarn")
 
-    neoforge12002.link(fabric12002)
-
+    neoforge12002.link(forge12002)
     forge12002.link(fabric12002)
+    fabric12002.link(forge11800)
     forge11800.link(fabric11800)
-
-    fabric12002.link(fabric11800)
 }
