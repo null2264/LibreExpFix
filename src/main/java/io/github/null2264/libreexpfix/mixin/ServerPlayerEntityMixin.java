@@ -22,8 +22,13 @@ public abstract class ServerPlayerEntityMixin
         connection.send(packet);
         //#else
         // Workaround for Forge
-        net.minecraft.DetectedVersion curVer = (net.minecraft.DetectedVersion) net.minecraft.DetectedVersion.BUILT_IN;
-        String majorVersion = curVer.getName().split("\\.")[1];
+        String majorVersion;
+        try {
+            majorVersion = net.minecraft.DetectedVersion.BUILT_IN.getName().split("\\.")[1];
+        } catch (NoSuchMethodError ignored) {
+            majorVersion = "19";
+        }
+
         String func;
         if (majorVersion.equals("18"))
             func = "m_141995_";
