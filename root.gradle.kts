@@ -17,7 +17,7 @@ preprocess {
     neoforge12002.link(fabric12002)
 
     forge12002.link(fabric12002)
-    forge11800.link(fabric11800)
+    forge11800.link(fabric11800, file("versions/1.18-forge/mappings.txt"))
 
     fabric12002.link(fabric11800)
 }
