@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class ServerPlayerEntityMixin
 {
     @Unique
-    private void sendPacket(Packet<?> packet) {
+    private void libreexpfix$sendPacket(Packet<?> packet) {
         ServerPlayer player = (ServerPlayer) (Object) this;
         //#if FABRIC>=1
         player.connection.send(packet);
@@ -26,7 +26,7 @@ public abstract class ServerPlayerEntityMixin
     }
 
     @Inject(method = "triggerDimensionChangeTriggers", at = @At("TAIL"))
-    private void afterWorldChanged(ServerLevel origin, CallbackInfo ci) {
+    private void libreexpfix$afterWorldChanged(ServerLevel origin, CallbackInfo ci) {
         /* Tests:
          *
          * - /effect give @p minecraft:night_vision 99999 1 true
@@ -34,13 +34,13 @@ public abstract class ServerPlayerEntityMixin
          * - /execute in overworld run tp @s ~ 10 ~
          */
         ServerPlayer player = (ServerPlayer) (Object) this;
-        sendPacket(new ClientboundSetExperiencePacket(
+        libreexpfix$sendPacket(new ClientboundSetExperiencePacket(
                 player.experienceProgress,
                 player.totalExperience,
                 player.experienceLevel
         ));
-        sendPacket(new ClientboundPlayerAbilitiesPacket(player.getAbilities()));
-        player.getActiveEffects().forEach(instance -> sendPacket(
+        libreexpfix$sendPacket(new ClientboundPlayerAbilitiesPacket(player.getAbilities()));
+        player.getActiveEffects().forEach(instance -> libreexpfix$sendPacket(
                 new ClientboundUpdateMobEffectPacket(
                         //#if FABRIC>=1
                         player.getId(),
