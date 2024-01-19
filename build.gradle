@@ -159,7 +159,7 @@ publishMods {
     } else {
         if (mcVersion <= 12002 && !isNeo)  // No more LexForge, LexForge is too buggy
             modLoaders.add("forge")
-        if (mcVersion == 12001 || isNeo)
+        if (mcVersion < 12002 || isNeo)
             modLoaders.add("neoforge")
     }
 
