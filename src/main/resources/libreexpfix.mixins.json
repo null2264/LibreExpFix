@@ -8,7 +8,7 @@
     //$$ "EntityAccessor",
     //$$ "ServerGamePacketListenerAccessor",
     //#endif
-    "ServerPlayerEntityMixin",
+    "ServerPlayerEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1
