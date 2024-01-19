@@ -5,10 +5,10 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     //#if FORGE>=1
-    "EntityAccessor",
-    "ServerPlayerEntityMixin",
+    //$$ "EntityAccessor",
+    //$$ "ServerGamePacketListenerAccessor",
     //#endif
-    "ServerGamePacketListenerAccessor"
+    "ServerPlayerEntityMixin",
   ],
   "injectors": {
     "defaultRequire": 1
