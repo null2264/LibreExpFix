@@ -18,7 +18,11 @@ public abstract class ServerPlayerEntityMixin
     @Unique
     private void sendPacket(Packet<?> packet) {
         ServerPlayer player = (ServerPlayer) (Object) this;
-        player.connection.connection.send(packet);
+        //#if FABRIC>=1
+        player.connection.send(packet);
+        //#else
+        //$$ ((ServerGamePacketListenerAccessor) player.connection).getConn().send(packet);
+        //#endif
     }
 
     @Inject(method = "triggerDimensionChangeTriggers", at = @At("TAIL"))

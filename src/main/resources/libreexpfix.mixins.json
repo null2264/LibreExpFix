@@ -6,8 +6,9 @@
   "mixins": [
     //#if FORGE>=1
     "EntityAccessor",
+    "ServerPlayerEntityMixin",
     //#endif
-    "ServerPlayerEntityMixin"
+    "ServerGamePacketListenerAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
