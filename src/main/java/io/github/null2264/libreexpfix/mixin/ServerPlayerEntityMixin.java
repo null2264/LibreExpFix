@@ -48,6 +48,9 @@ public abstract class ServerPlayerEntityMixin
                         //$$ ((EntityAccessor) player).getEntityId(),
                         //#endif
                         instance
+                        //#if MC>=1.20.5
+                        //$$ ,false
+                        //#endif
                 ))
         );
     }

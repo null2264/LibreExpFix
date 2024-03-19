@@ -20,9 +20,11 @@ static String stringifyVersion(int ver) {
     return "${(int)(ver/10000)}.${(int)(ver/100)%100}" + (ver%100==0 ? '' : ".${ver%100}")
 }
 def mcVersionStr = stringifyVersion(mcVersion)
+// TODO(addingVersion)
 def supportedVersionRange = [
-        11800: ["1.18", "1.20.1"],
-        12002: ["1.20.2", null],
+        11800: ["1.18-", "1.20.1"],
+        12002: ["1.20.2-", "1.20.4"],
+        12005: ["1.20.5-", null]
 ][mcVersion]
 
 def buildNumber = _env["GITHUB_RUN_NUMBER"]
@@ -65,14 +67,17 @@ configurations {
 }
 
 dependencies {
+    // TODO(addingVersion): If needed
     def mc = [
-            11800: "1.18.2"
+            11800: "1.18.2",
+            12005: "24w11a"
     ]
     minecraft("com.mojang:minecraft:${mc[mcVersion] ?: mcVersionStr}")
     mappings loom.officialMojangMappings()
     if (isFabric)
-        modImplementation("net.fabricmc:fabric-loader:0.14.24")
+        modImplementation("net.fabricmc:fabric-loader:0.15.7")
     else {
+        // TODO(addingVersion)
         if (!isNeo) {
             forge("net.minecraftforge:forge:" + [
                     11800: "1.18.2-40.2.9",
@@ -143,9 +148,17 @@ jar {
     }
 }
 
+// TODO(addingVersion)
 def mcReleaseVersions = [
         11800: ["1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3", "1.19.4", "1.20", "1.20.1"],
         12002: ["1.20.2", "1.20.3", "1.20.4"],
+        12005: ["1.20.5"],
+][mcVersion]
+def cfSnapshots = [
+        12005: ["1.20.5-Snapshot"],
+][mcVersion]
+def mrSnapshots = [
+        12005: ["24w11a"],
 ][mcVersion]
 
 publishMods {
@@ -171,7 +184,8 @@ publishMods {
             accessToken = cToken
             projectId = project["curseforge_project"]
 
-            for (final def mcVer in mcReleaseVersions) {
+            def mcVersions = cfSnapshots == null ? mcReleaseVersions : cfSnapshots
+            for (final def mcVer in mcVersions) {
                 minecraftVersions.add(mcVer)
             }
         }
@@ -182,7 +196,8 @@ publishMods {
             accessToken = mToken
             projectId = project["modrinth_project"]
 
-            for (final def mcVer in mcReleaseVersions) {
+            def mcVersions = mrSnapshots == null ? mcReleaseVersions : mrSnapshots
+            for (final def mcVer in mcVersions) {
                 minecraftVersions.add(mcVer)
             }
         }
