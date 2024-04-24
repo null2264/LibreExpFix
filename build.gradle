@@ -85,6 +85,7 @@ dependencies {
         } else {
             neoForge("net.neoforged:neoforge:" + [
                     12002: "20.2.51-beta"
+                    12005: "20.5.0-beta"
             ][mcVersion])
         }
     }
