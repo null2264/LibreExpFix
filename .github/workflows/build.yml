@@ -7,18 +7,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+
     - name: Setup Gradle
       uses: null2264/actions/gradle-setup@6712f98d592b126629afd27dc4870c93b53426b4
       with:
         java: 21
+
     - name: Build LibreExpFix
       run: ./gradlew build
-    - name: Move needed jar files
-      shell: zsh {0}
-      run: mkdir filtered && cp --parents versions/*/build/libs/*-(fabric|forge|neoforge).jar filtered/
+
+    - name: Archive build results
+      run: tar -I zstd -cf build.tar.zst versions/*/build/libs
+
     - name: Upload build folder
       uses: actions/upload-artifact@v3
       with:
-        path: filtered/versions/*/build/libs/*.jar
+        path: build.tar.zst
         if-no-files-found: error
         retention-days: 3
