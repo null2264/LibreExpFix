@@ -70,12 +70,11 @@ dependencies {
     // TODO(addingVersion): If needed
     def mc = [
             11800: "1.18.2",
-            12005: "24w11a"
     ]
     minecraft("com.mojang:minecraft:${mc[mcVersion] ?: mcVersionStr}")
     mappings loom.officialMojangMappings()
     if (isFabric)
-        modImplementation("net.fabricmc:fabric-loader:0.15.7")
+        modImplementation("net.fabricmc:fabric-loader:0.15.10")
     else {
         // TODO(addingVersion)
         if (!isNeo) {
@@ -130,7 +129,7 @@ tasks.processResources {
     }
 }
 
-def targetJavaVersion = 17
+def targetJavaVersion = (mcVersion >= 12005) ? 21 : (mcVersion >= 11700 ? 17 : 8)
 tasks.withType(JavaCompile).configureEach {
     it.options.encoding = "UTF-8"
     if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
@@ -139,6 +138,10 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 java {
+    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    if (JavaVersion.current() != javaVersion) {
+        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
     withSourcesJar()
 }
 
@@ -155,10 +158,8 @@ def mcReleaseVersions = [
         12005: ["1.20.5"],
 ][mcVersion]
 def cfSnapshots = [
-        12005: ["1.20.5-Snapshot"],
 ][mcVersion]
 def mrSnapshots = [
-        12005: ["24w11a"],
 ][mcVersion]
 
 publishMods {
