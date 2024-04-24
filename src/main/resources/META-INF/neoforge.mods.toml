@@ -16,7 +16,7 @@ description = "Fix experience bug after teleporting across dimension"
 config = "libreexpfix.mixins.json"
 
 [[dependencies.libreexpfix]]
-modId = "${forge}"
+modId = "neoforge"
 mandatory = true
 versionRange = "[1,)"
 ordering = "NONE"
