@@ -8,7 +8,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup Gradle
       uses: null2264/actions/gradle-setup@6712f98d592b126629afd27dc4870c93b53426b4
       with:
@@ -48,13 +48,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Download build artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: build-artifacts
     - name: Unpack build artifact
       run: tar axf build.tar.zst
     - name: Upload Release Artifact
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:

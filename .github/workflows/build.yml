@@ -6,7 +6,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Setup Gradle
       uses: null2264/actions/gradle-setup@6712f98d592b126629afd27dc4870c93b53426b4
