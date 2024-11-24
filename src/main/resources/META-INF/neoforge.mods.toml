@@ -1,6 +1,6 @@
 modLoader = "javafml"
 loaderVersion = "[1,)"
-license = "unlicense"
+license = "0bsd"
 issueTrackerURL = "https://github.com/null2264/LibreExpFix/issues"
 
 [[mods]]

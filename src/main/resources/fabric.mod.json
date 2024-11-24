@@ -12,7 +12,7 @@
     "sources": "https://github.com/null2264/LibreExpFix",
     "issues": "https://github.com/null2264/LibreExpFix/issues"
   },
-  "license": "unlicense",
+  "license": "0bsd",
   "icon": "icon.png",
   "environment": "*",
   "entrypoints": {},
